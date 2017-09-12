@@ -1,0 +1,10 @@
+#
+# Ansible playbook definition for Gowlook instance (web-front-end)
+# All needed variables in "vars" section
+# Raúl R. Linares P.
+# E-Mail tigerlinux at gmail dot com
+# GOWLOOK Project
+# May 17, 2017
+#
+#
+

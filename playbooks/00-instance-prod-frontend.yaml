@@ -1,0 +1,58 @@
+#
+## Ansible playbook definition for Gowlook instance (web-front-end) - New Deployment
+## All needed variables in "vars" section
+## Raúl E. Linares N.
+## E-Mail linaresnavas at gmail dot com
+## AWS-TAC training Project
+## May 25, 2017
+##
+##
+#
+#
+---
+- name: Create WEB production instance
+  hosts: localhost
+  gather_facts: False
+  vars:
+    vpc_region: us-west-2
+    # Created by script 03-security-groups-creation.sh
+    sec_group: sg-c11423bb
+    # Created by script 01-ssh-key-infra-creation.sh
+    key_name: tac-infra-01
+    # Ubuntu 1604lts: ami-6e1a0117 | 25 august
+    # RHEL 7: ami-9fa343e7         | 25 august
+    # Just select one
+    amazon_image: ami-6e1a0117
+    # VPC/Subnet created by script 02-new-vpc-creation.sh
+    subnet: subnet-7d9a6935
+    machine_type: t2.medium
+    az: us-west-2a
+    # Created by script: 04-roles-s3-creation-all-environments.sh
+    profile_name: aws-tac-prod-s3-ro-profile                   
+  tasks:
+  - name: aws-tac-webfrontend-prod-new-01
+    ec2:
+       region: "{{ vpc_region }}"
+       group_id: "{{ sec_group }}"
+       keypair: "{{ key_name }}"
+       instance_type: "{{ machine_type }}"
+       image: "{{ amazon_image }}"
+       vpc_subnet_id: "{{ subnet }}"
+       assign_public_ip: True
+       instance_profile_name: "{{ profile_name }}"
+       instance_tags:
+          Name: aws-tac-webfrontend-prod-new-01
+          Applayer: webfrontend
+          Group: TAC
+          Environment: training
+          Description: TAC WEB Front-End - training new - instance 01
+       volumes:
+         - device_name: /dev/sda1
+           volume_type: gp2
+           volume_size: 40
+       count: 1
+       zone: "{{ az }}"
+       user_data: "{{lookup('file', '~/my-aws-training/scripts/metadata-scripts/frontend-01.sh')}}"
+       wait: True
+       wait_timeout: 600
+    register: ec2
